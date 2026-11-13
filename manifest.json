@@ -1,0 +1,9 @@
+{
+  "name": "Frank's Money Tracker",
+  "short_name": "Frank's Tracker",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4f6f4",
+  "theme_color": "#173d32",
+  "icons": []
+}

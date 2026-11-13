@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#173d32">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Frank's Tracker">
+<link rel="manifest" href="manifest.json">
+<title>Frank's Money Tracker</title>
+<style>
+:root{--green:#173d32;--green2:#245c49;--bg:#f4f6f4;--card:#fff;--ink:#17231e;--muted:#6d7972;--line:#e3e9e5;--red:#b43c3c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{background:var(--green);color:#fff;padding:26px 18px 22px;border-radius:0 0 22px 22px}
+header .small{opacity:.8;font-size:13px}h1{font-size:24px;margin:5px 0}header p{margin:5px 0 0;font-size:14px;opacity:.88}
+main{max-width:720px;margin:auto;padding:16px 14px 36px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px;margin-bottom:12px;box-shadow:0 2px 8px #163b2910}
+.metric{font-size:12px;color:var(--muted)}.amount{font-size:21px;font-weight:750;margin-top:5px;overflow-wrap:anywhere}
+h2{font-size:17px;margin:3px 0 13px}.row{display:flex;gap:9px}.row>*{flex:1;min-width:0}
+label{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}
+input,select,textarea{width:100%;padding:12px;border:1px solid #d8e1db;border-radius:10px;background:#fff;color:var(--ink);font:inherit}
+button{border:0;border-radius:11px;padding:12px 14px;background:var(--green);color:white;font-weight:650;font-size:14px;cursor:pointer}
+button.secondary{background:#e9f0eb;color:var(--green)}button.danger{background:#fff0f0;color:var(--red)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.actions button{flex:1}
+.tabs{display:flex;gap:8px;margin:0 0 14px}.tabs button{flex:1;background:#e5ece7;color:var(--green)}.tabs button.active{background:var(--green);color:white}
+.item{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}.item:last-child{border:0}
+.item small{display:block;color:var(--muted);margin-top:3px}.negative{color:var(--red)}.empty{color:var(--muted);font-size:14px;padding:10px 0}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:10px}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<header><div class="small">YOUR PERSONAL FINANCE COMPANION</div><h1>Frank's Money Tracker</h1><p>Track every day. Review every Sunday. Build your savings.</p></header>
+<main>
+<div class="grid">
+ <div class="card"><div class="metric">Monthly income</div><div class="amount" id="incomeMetric">UGX 0</div></div>
+ <div class="card"><div class="metric">This month's spending</div><div class="amount" id="spentMetric">UGX 0</div></div>
+ <div class="card"><div class="metric">Savings recorded</div><div class="amount" id="savedMetric">UGX 0</div></div>
+ <div class="card"><div class="metric">Available balance</div><div class="amount" id="balanceMetric">UGX 0</div></div>
+</div>
+<div class="tabs">
+<button class="active" data-tab="daily">Daily</button><button data-tab="income">Income</button><button data-tab="savings">Savings</button><button data-tab="review">Sunday review</button>
+</div>
+<section id="daily" class="card panel">
+<h2>Add an expense</h2>
+<div class="row"><div><label>Date</label><input id="expenseDate" type="date"></div><div><label>Amount (UGX)</label><input id="expenseAmount" type="number" min="0" inputmode="numeric" placeholder="e.g. 5000"></div></div>
+<label>Category</label><select id="expenseCategory"><option>Food</option><option>Transport</option><option>Mobile data / airtime</option><option>Personal care</option><option>Family</option><option>Shopping</option><option>Rent / bills</option><option>Other</option></select>
+<label>What was it for?</label><input id="expenseNote" placeholder="e.g. taxi to work">
+<div class="actions"><button id="addExpense">Save expense</button></div>
+<h2 style="margin-top:20px">Recent expenses</h2><div id="expenseList"></div>
+</section>
+<section id="income" class="card panel hidden">
+<h2>Record income</h2>
+<div class="row"><div><label>Date</label><input id="incomeDate" type="date"></div><div><label>Amount (UGX)</label><input id="incomeAmount" type="number" min="0" inputmode="numeric" placeholder="e.g. 480000"></div></div>
+<label>Source</label><select id="incomeSource"><option>Salary</option><option>Tips</option><option>Bonus</option><option>Other</option></select>
+<div class="actions"><button id="addIncome">Save income</button></div><h2 style="margin-top:20px">Income history</h2><div id="incomeList"></div>
+</section>
+<section id="savings" class="card panel hidden">
+<h2>Record savings</h2>
+<div class="row"><div><label>Date</label><input id="savingDate" type="date"></div><div><label>Amount (UGX)</label><input id="savingAmount" type="number" min="0" inputmode="numeric" placeholder="e.g. 20000"></div></div>
+<label>Where did you save it?</label><input id="savingNote" placeholder="e.g. Bank account">
+<div class="actions"><button id="addSaving">Save entry</button></div><h2 style="margin-top:20px">Savings history</h2><div id="savingList"></div>
+</section>
+<section id="review" class="card panel hidden">
+<h2>Weekly Sunday review</h2><p class="metric">Choose a week to review your spending, income and savings.</p>
+<label>Week starting (Monday)</label><input id="weekStart" type="date">
+<div class="grid" style="margin-top:12px">
+<div class="card"><div class="metric">Income</div><div class="amount" id="weekIncome">UGX 0</div></div>
+<div class="card"><div class="metric">Expenses</div><div class="amount" id="weekSpent">UGX 0</div></div>
+<div class="card"><div class="metric">Saved</div><div class="amount" id="weekSaved">UGX 0</div></div>
+<div class="card"><div class="metric">Net</div><div class="amount" id="weekNet">UGX 0</div></div>
+</div>
+<label>What went well / what should change next week?</label><textarea id="reviewNote" rows="3" placeholder="Write a short reflection..."></textarea>
+<div class="actions"><button id="saveReview">Save Sunday review</button></div><div id="reviewStatus" class="metric" style="margin-top:9px"></div>
+</section>
+<section class="card">
+<h2>Backup & export</h2><p class="metric">Your entries are stored on this device. Export a backup regularly so you don't lose your records.</p>
+<div class="actions"><button class="secondary" id="exportCsv">Export CSV</button><button class="secondary" id="backupJson">Download backup</button><button class="secondary" id="restoreJson">Restore backup</button><input class="hidden" id="restoreFile" type="file" accept="application/json"></div>
+</section>
+<footer>Frank's Money Tracker · Your data stays on this device unless you export it.</footer>
+</main>
+<script>
+const KEY='franksMoneyTracker_v1';
+const today=()=>new Date().toISOString().slice(0,10);
+let data=JSON.parse(localStorage.getItem(KEY)||'{"expenses":[],"incomes":[],"savings":[],"reviews":[]}');
+const fmt=n=>'UGX '+Number(n||0).toLocaleString('en-UG');
+const el=id=>document.getElementById(id);
+['expenseDate','incomeDate','savingDate'].forEach(id=>el(id).value=today());
+function persist(){localStorage.setItem(KEY,JSON.stringify(data));render()}
+function sum(items){return items.reduce((a,x)=>a+Number(x.amount||0),0)}
+function currentMonth(x){return x.date&&x.date.slice(0,7)===today().slice(0,7)}
+function line(x,type){return `<div class="item"><div>${type==='expenses'?x.category:type==='incomes'?x.source:(x.note||'Savings')}<small>${x.date}${x.note&&type==='expenses'?' · '+escapeHtml(x.note):''}</small></div><strong>${fmt(x.amount)}</strong></div>`}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function render(){
+ const mi=sum(data.incomes.filter(currentMonth)),ms=sum(data.expenses.filter(currentMonth)),sv=sum(data.savings.filter(currentMonth));
+ el('incomeMetric').textContent=fmt(mi);el('spentMetric').textContent=fmt(ms);el('savedMetric').textContent=fmt(sv);el('balanceMetric').textContent=fmt(mi-ms-sv);
+ [['expenseList','expenses'],['incomeList','incomes'],['savingList','savings']].forEach(([id,k])=>{let a=[...data[k]].sort((x,y)=>y.date.localeCompare(x.date)).slice(0,20);el(id).innerHTML=a.length?a.map(x=>line(x,k)).join(''):'<div class="empty">No entries yet.</div>'});
+ weekly();
+}
+function add(kind,fields){let amount=Number(el(fields.amount).value);if(!amount||amount<1){alert('Please enter an amount greater than zero.');return}
+ let x={date:el(fields.date).value||today(),amount};
+ fields.extra.forEach(([key,id])=>x[key]=el(id).value.trim());
+ data[kind].push(x);el(fields.amount).value='';if(fields.note)el(fields.note).value='';persist();
+}
+el('addExpense').onclick=()=>add('expenses',{date:'expenseDate',amount:'expenseAmount',extra:[['category','expenseCategory'],['note','expenseNote']],note:'expenseNote'});
+el('addIncome').onclick=()=>add('incomes',{date:'incomeDate',amount:'incomeAmount',extra:[['source','incomeSource']]});
+el('addSaving').onclick=()=>add('savings',{date:'savingDate',amount:'savingAmount',extra:[['note','savingNote']],note:'savingNote'});
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.panel').forEach(x=>x.classList.add('hidden'));el(b.dataset.tab).classList.remove('hidden');});
+function monday(d){let x=new Date(d+'T12:00:00');let day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);return x.toISOString().slice(0,10)}
+el('weekStart').value=monday(today());el('weekStart').onchange=weekly;
+function weekly(){if(!el('weekStart'))return;let s=el('weekStart').value||monday(today()),e=new Date(s+'T12:00:00');e.setDate(e.getDate()+6);let end=e.toISOString().slice(0,10);let inW=k=>data[k].filter(x=>x.date>=s&&x.date<=end);let a=sum(inW('incomes')),b=sum(inW('expenses')),c=sum(inW('savings'));el('weekIncome').textContent=fmt(a);el('weekSpent').textContent=fmt(b);el('weekSaved').textContent=fmt(c);el('weekNet').textContent=fmt(a-b-c);let r=data.reviews.find(x=>x.start===s);el('reviewNote').value=r?.note||''}
+el('saveReview').onclick=()=>{let s=el('weekStart').value;data.reviews=data.reviews.filter(x=>x.start!==s);data.reviews.push({start:s,note:el('reviewNote').value});localStorage.setItem(KEY,JSON.stringify(data));el('reviewStatus').textContent='Review saved on this device.'};
+function download(name,content,type){let a=document.createElement('a'),u=URL.createObjectURL(new Blob([content],{type}));a.href=u;a.download=name;a.click();URL.revokeObjectURL(u)}
+el('exportCsv').onclick=()=>{let rows=[['type','date','amount_UGX','category_or_source','note']];['expenses','incomes','savings'].forEach(k=>data[k].forEach(x=>rows.push([k,x.date,x.amount,x.category||x.source||'',x.note||''])));let csv=rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\n');download('franks-money-tracker.csv',csv,'text/csv')};
+el('backupJson').onclick=()=>download('franks-money-tracker-backup.json',JSON.stringify(data,null,2),'application/json');
+el('restoreJson').onclick=()=>el('restoreFile').click();
+el('restoreFile').onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let d=JSON.parse(await f.text());if(!Array.isArray(d.expenses)||!Array.isArray(d.incomes)||!Array.isArray(d.savings))throw Error();data={expenses:d.expenses,incomes:d.incomes,savings:d.savings,reviews:Array.isArray(d.reviews)?d.reviews:[]};persist();alert('Backup restored.')}catch{alert('That backup file could not be read.')}};
+if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+render();
+</script>
+</body></html>
